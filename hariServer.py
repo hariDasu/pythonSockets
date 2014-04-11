@@ -61,13 +61,16 @@ def sendTable(clientSock) :
 if __name__ == "__main__" :
     csock=acceptOneConnection()
     while True  :
+
         clientData=readClientData(csock)
         #print(clientData)
-        rvcdRouteTable=json.loads(clientData)
-        pp.pprint(rvcdRouteTable);
+        rcvdRouteTable=json.loads(clientData)
+        pp.pprint(rcvdRouteTable);
         print("hit enter to send to client...");
         raw_input();
         sendTable(csock);
+        bellmanFording(initialCostMatrix,rcvdRouteTable)
+        pp.pprint(initialCostMatrix);
 
         #csock.send(clientData)
         #if upperSent=="DONE" :
