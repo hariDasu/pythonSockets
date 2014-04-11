@@ -36,7 +36,7 @@ def printRouteTable() :
         #%s to router %s over interface %s has cost %s\n"%(costMatrix[0][i][0],costMatrix[0][i][1],costMatrix[0][i][2],costMatrix[0][i][3])
         print(fromMessage + destMessage + intfMessage + costMessage);
 
-
+#------------------------------------------
 def bellmanFording(someTable,otherTable) :
     for i in range (len(someTable)):
         uI = unicode(i)
@@ -51,7 +51,7 @@ def bellmanFording(someTable,otherTable) :
         if someTable[i][2]>otherTable[uI][2]+costTo :
             someTable[i][2]=replCost;
             someTable[i][1]=intfTo;
-
+#------------------------------------------
 
 
 #client

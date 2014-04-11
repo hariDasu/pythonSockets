@@ -56,7 +56,22 @@ def  readClientData(csock) :
 def sendTable(clientSock) :
         toClientMsg = json.dumps(initialCostMatrix);
         clientSock.send(toClientMsg);        
-#-----------------------------------------
+#------------------------------------------
+def bellmanFording(someTable,otherTable) :
+    for i in range (len(someTable)):
+        uI = unicode(i)
+        myNumber = someTable[i][0];
+        otherNumber = int(otherTable[uI][0]);
+        costTo = someTable[otherNumber][2];
+        intfTo = someTable[otherNumber][1];
+
+        replCost = otherTable[uI][2]+costTo;
+        replIntf = otherTable[uI][1];
+
+        if someTable[i][2]>otherTable[uI][2]+costTo :
+            someTable[i][2]=replCost;
+            someTable[i][1]=intfTo;
+#------------------------------------------
 
 if __name__ == "__main__" :
     csock=acceptOneConnection()
