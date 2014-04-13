@@ -5,6 +5,7 @@
 
 import socket               # Import socket module
 import json
+import pdb, ipdb, pudb
 from pprint import PrettyPrinter
 
 
@@ -21,10 +22,10 @@ clientSockArr={}
 '''
 initialCostMatrix =   {
                         
-                        0:[1,2,1],
-                        1:[1,0,0],
-                        2:[1,0,1],
-                        3:[1,"N",9999]
+                        "0":[1,2,1],
+                        "1":[1,0,0],
+                        "2":[1,0,1],
+                        "3":[1,"N",9999]
                     
                 };
 
@@ -55,22 +56,26 @@ def  readClientData(csock) :
 
 def sendTable(clientSock) :
         toClientMsg = json.dumps(initialCostMatrix);
-        clientSock.send(toClientMsg);        
+        clientSock.send(toClientMsg.encode());        
 #------------------------------------------
 def bellmanFording(someTable,otherTable) :
-    for i in range (len(someTable)):
-        uI = unicode(i)
-        myNumber = someTable[i][0];
-        otherNumber = int(otherTable[uI][0]);
-        costTo = someTable[otherNumber][2];
-        intfTo = someTable[otherNumber][1];
+    myNumber = someTable["0"][0];
 
+    otherNumber = otherTable["0"][0];
+    costTo = someTable[str(otherNumber)][2];
+    intfTo = someTable[str(otherNumber)][1];
+
+    for toRouter in someTable:
+        #uI = unicode(i)
+        uI = str(toRouter);
+        #pudb.set_trace();
+    
         replCost = otherTable[uI][2]+costTo;
         replIntf = otherTable[uI][1];
 
-        if someTable[i][2]>otherTable[uI][2]+costTo :
-            someTable[i][2]=replCost;
-            someTable[i][1]=intfTo;
+        if someTable[toRouter][2]>otherTable[uI][2]+costTo :
+            someTable[toRouter][2]=replCost;
+            someTable[toRouter][1]=intfTo;
 #------------------------------------------
 
 if __name__ == "__main__" :
@@ -82,7 +87,7 @@ if __name__ == "__main__" :
         rcvdRouteTable=json.loads(clientData)
         pp.pprint(rcvdRouteTable);
         print("hit enter to send to client...");
-        raw_input();
+        input();
         sendTable(csock);
         bellmanFording(initialCostMatrix,rcvdRouteTable)
         pp.pprint(initialCostMatrix);

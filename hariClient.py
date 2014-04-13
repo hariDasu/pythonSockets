@@ -16,14 +16,14 @@ pp=PrettyPrinter(indent=4);
      "N" (NaN) is a non-existant interface
 '''
 costMatrix =   {
-                    0:[0, 0, 0],
-                    1:[0, 1, 1],
-                    2:[0, 2, 3],
-                    3:[0, 3, 7]
+                    "0":[0, 0, 0],
+                    "1":[0, 1, 1],
+                    "2":[0, 2, 3],
+                    "3":[0, 3, 7]
                 };
 #----------------------------------------
 def  readServerData(ssock)  :
-    fromServer=ssock.recv(1024)
+    fromServer=ssock.recv(1024).decode()
     return fromServer
 #----------------------------------------
 
@@ -37,20 +37,25 @@ def printRouteTable() :
         print(fromMessage + destMessage + intfMessage + costMessage);
 
 #------------------------------------------
-def bellmanFording(someTable,otherTable) :
-    for i in range (len(someTable)):
-        uI = unicode(i)
-        myNumber = someTable[i][0];
-        otherNumber = int(otherTable[uI][0]);
-        costTo = someTable[otherNumber][2];
-        intfTo = someTable[otherNumber][1];
 
+def bellmanFording(someTable,otherTable) :
+    myNumber = someTable["0"][0];
+
+    otherNumber = otherTable["0"][0];
+    costTo = someTable[str(otherNumber)][2];
+    intfTo = someTable[str(otherNumber)][1];
+
+    for toRouter in someTable:
+        #uI = unicode(i)
+        uI = str(toRouter);
+        #pudb.set_trace();
+      
         replCost = otherTable[uI][2]+costTo;
         replIntf = otherTable[uI][1];
 
-        if someTable[i][2]>otherTable[uI][2]+costTo :
-            someTable[i][2]=replCost;
-            someTable[i][1]=intfTo;
+        if someTable[toRouter][2]>otherTable[uI][2]+costTo :
+            someTable[toRouter][2]=replCost;
+            someTable[toRouter][1]=intfTo;
 #------------------------------------------
 
 
@@ -66,18 +71,17 @@ if __name__ == "__main__" :
         # pdb.set_trace()
         #Sending route table to server
         toSend = json.dumps(costMatrix);
-        serverSock.send(toSend);
+
+        serverSock.send(toSend.encode());
         #Getting route table from server
         print("waiting for server data...");
         fromServer = json.loads(readServerData(serverSock))
+        #nonBytes = fromServer.decode()
         pp.pprint(fromServer);
         bellmanFording(costMatrix,fromServer);
         #printing updated routes table
         printRouteTable();
         
-
-
-    
 
         
         break
