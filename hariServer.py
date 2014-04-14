@@ -21,12 +21,12 @@ clientSockArr={}
      "N" (NaN) is a non-existant interface
 '''
 initialCostMatrix =   {
-                        
+
                         "0":[1,2,1],
                         "1":[1,0,0],
                         "2":[1,0,1],
                         "3":[1,"N",9999]
-                    
+
                 };
 
 
@@ -35,7 +35,7 @@ rvcdRouteTable = [
 
 def  acceptOneConnection() :
     lsock = socket.socket()         # Create a socket object
-    host = ''     # Get  machine name
+    host = '10.0.1.23'     # Get  machine name
     port = 16001
     lsock.bind((host, port))        # Bind to the port
     lsock.listen(5)                 # Now wait for client connection.
@@ -56,7 +56,7 @@ def  readClientData(csock) :
 
 def sendTable(clientSock) :
         toClientMsg = json.dumps(initialCostMatrix);
-        clientSock.send(toClientMsg.encode());        
+        clientSock.send(toClientMsg.encode());
 #------------------------------------------
 def bellmanFording(someTable,otherTable) :
     myNumber = someTable["0"][0];
@@ -69,7 +69,7 @@ def bellmanFording(someTable,otherTable) :
         #uI = unicode(i)
         uI = str(toRouter);
         #pudb.set_trace();
-    
+
         replCost = otherTable[uI][2]+costTo;
         replIntf = otherTable[uI][1];
 
