@@ -63,7 +63,7 @@ def bellmanFording(someTable,otherTable) :
 if __name__ == "__main__" :
     host1 = '128.235.208.35'
     host2 = '128.235.211.21'
-    host3 = ''
+    host3 = '128.235.208.127'
 
     printRouteTable();
     serverSock=socket(AF_INET, SOCK_STREAM)

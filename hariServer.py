@@ -6,10 +6,10 @@
 import socket               # Import socket module
 import json
 #import pdb, ipdb, pudb
-from pprint import PrettyPrinter
+#from pprint import PrettyPrinter
 
 
-pp=PrettyPrinter(indent=4);
+#pp=PrettyPrinter(indent=4);
 #----------------------------------------
 clientSockArr={}
 
@@ -35,7 +35,7 @@ rvcdRouteTable = [
 
 def  acceptOneConnection() :
     lsock = socket.socket()         # Create a socket object
-    host1 = ''     # Get  machine name
+    host1 = '128.235.208.35'     # Get  machine name
     port = 16001
     lsock.bind((host, port))        # Bind to the port
     lsock.listen(5)                 # Now wait for client connection.
@@ -85,12 +85,12 @@ if __name__ == "__main__" :
         clientData=readClientData(csock)
         #print(clientData)
         rcvdRouteTable=json.loads(clientData)
-        pp.pprint(rcvdRouteTable);
+        print(rcvdRouteTable);
         print("hit enter to send to client...");
         input();
         sendTable(csock);
         bellmanFording(initialCostMatrix,rcvdRouteTable)
-        pp.pprint(initialCostMatrix);
+        print(initialCostMatrix);
 
         #csock.send(clientData)
         #if upperSent=="DONE" :
