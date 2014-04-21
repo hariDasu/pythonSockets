@@ -35,8 +35,8 @@ rvcdRouteTable = [
 
 def  acceptOneConnection() :
     lsock = socket.socket()         # Create a socket object
-    host1 = ''     # Get  machine name
-    port = 16001
+    host2= ''     # Get  machine name
+    port = 16002
     lsock.bind((host, port))        # Bind to the port
     lsock.listen(5)                 # Now wait for client connection.
     # lsock - blocking for conn

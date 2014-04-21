@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2.7
+#!/usr/bin/env  py
 #-----------------------------------------
 #vi: sw=4 ts=4 expandtab nu
 #-----------------------------------------
@@ -61,11 +61,15 @@ def bellmanFording(someTable,otherTable) :
 
 #client
 if __name__ == "__main__" :
-    host = ''
+    host1 = '128.235.208.35'
+    host2 = '128.235.211.21'
+    host3 = ''
+
     printRouteTable();
     serverSock=socket(AF_INET, SOCK_STREAM)
-    serverSock.connect((host, 16001))
-    
+    serverSock.connect((host1, 16001))
+    serverSock.connect((host2, 16002))
+    serverSock.connect((host3, 16003))
     while True :
         #msg2Server=input("Enter lower case text : " )
         # pdb.set_trace()
@@ -74,7 +78,6 @@ if __name__ == "__main__" :
 
         serverSock.send(toSend.encode());
         #Getting route table from server
-        print("waiting for server data...");
         fromServer = json.loads(readServerData(serverSock))
         #nonBytes = fromServer.decode()
         pp.pprint(fromServer);
