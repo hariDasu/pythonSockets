@@ -13,21 +13,14 @@ import json
 #----------------------------------------
 clientSockArr={}
 
-''' {to:[from, interface, cost],
-     to:[from, interface, cost]
-    }
-     0 interface refers to local
 
-     "N" (NaN) is a non-existant interface
-'''
 initialCostMatrix =   {
 
                         "0":[1,2,1],
                         "1":[1,0,0],
                         "2":[1,0,1],
                         "3":[1,"N",9999]
-
-                };
+                     };
 
 
 rvcdRouteTable = [
