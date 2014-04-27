@@ -29,10 +29,10 @@ initialRoutes = [
 
 
 routerSetup=[
-    ("10.0.1.32" , 5150),  #iMac
-    ("10.0.1.24" , 5151),  #mbpR
+    ("10.0.1.24" , 5150),  #mbpR
+    ("10.0.1.32" , 5151),  #iMac
     ("10.0.1.23" , 5152),  #linuxMint
-    ("10.0.1.32" , 5153)   #iMac2
+    ("10.0.1.24" , 5153)   #mbpR2
 ]
 """
 
@@ -108,7 +108,28 @@ class RouteServer(threading.Thread):
         self.tableVersion=0
         self.updateDVRtable(remRouter=self.routerNum, newValues=None)
 
+
+    def bellmanFording(self,otherTable) :
+        #pdb.set_trace()
+        myNumber = self.routerNum;
+        otherNumber = otherTable["0"][0];
+        costTo = self.dvrTable[otherNumber][2];
+        intfTo = self.dvrTable[otherNumber][1];
+
+        for toRouter in self.dvrTable:
+            #uI = unicode(i)
+            sToRouter = str(toRouter);
+            replCost = otherTable[sToRouter][2]+costTo;
+            replIntf = otherTable[sToRouter][1];
+
+            if self.dvrTable[toRouter][2]>otherTable[sToRouter][2]+costTo :
+                #pdb.set_trace()
+                self.dvrTable[toRouter][2]=replCost;
+                self.dvrTable[toRouter][1]=intfTo;    
+                self.tableVersion+=1
+                
     #----------------------------------------------
+
     def updateDVRtable(self, remRouter=0, newValues={} ) :
         if newValues==None:
             #update  from  initialRoutes  (based on self.routerNum )
@@ -116,12 +137,11 @@ class RouteServer(threading.Thread):
             myInitialCosts=initialRoutes[self.routerNum]
             for ric  in myInitialCosts :
                 (toRouter, interface, cost) = ric.split(':')
-                self.dvrTable[int(toRouter)]=(self.routerNum, int(interface), int(cost) )
+                self.dvrTable[int(toRouter)]=[self.routerNum, int(interface), int(cost) ]
             self.tableVersion+=1
         else :
             thrdLog(remRouter, "Updating DVRT from remote router routes ..")
-            # update from the json we got from remote router 
-            # bump up the version only if at least one row changed
+            self.bellmanFording(newValues)
 
         thrdLog(self.routerNum, "Router %d: Table Version %d " % (self.routerNum,  self.tableVersion ) )
         pp.pprint(self.dvrTable)
@@ -176,9 +196,10 @@ class RouteUpdater(threading.Thread) :
         try :
             rcvdTable = json.loads(remoteTable)
             remRouter=int(rcvdTable['0'][0])
-            thrdLog(remRouter, "Processing update from %d" % (remRouter) )
+            thrdLog(remRouter, "Processing update from %d, tableVersion: %d" % (remRouter,self.rtServer.tableVersion) )
             pp.pprint(rcvdTable)
             self.rtServer.updateDVRtable(remRouter, rcvdTable)
+            thrdLog(remRouter, "Processed update from %d, tableVersion: %d" % (remRouter,self.rtServer.tableVersion) )
             self.mySock.send("Hello: %s" % "ok")      # echo back .. (for testing only)
         except Exception,e :
             logger.error ('Lost connection from ...')
