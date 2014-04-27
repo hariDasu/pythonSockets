@@ -27,7 +27,7 @@ initialRoutes = [
     [ "0:0:7", "1:9999:9999", "2:2:2", "3:0:0"]                  # router 3 neighbors
 ]
 
-"""
+
 routerSetup=[
     ("10.0.1.24" , 5150),  #iMac
     ("10.0.1.32" , 5151),  #mbpR
@@ -37,13 +37,13 @@ routerSetup=[
 """
 
 routerSetup=[
-    ("localhost" , 5150),  #iMac
-    ("localhost" , 5151),  #mbpR
-    ("localhost" , 5152),  #linuxMint
-    ("localhost" , 5153)   #iMac2
+    ("localhost" , 5150),  
+    ("localhost" , 5151),  
+    ("localhost" , 5152),  
+    ("localhost" , 5153)   
 ]
  
-
+"""
 
 
 def tinit() :
