@@ -128,6 +128,7 @@ class RouteUpdater(threading.Thread) :
 
     #-----------------------------------------------
     def processRequest(self, remoteTable) :
+        logger.info("here is the rmote table")
         pp.pprint(remoteTable)
         try :
             rcvdTable = json.loads(remoteTable)
