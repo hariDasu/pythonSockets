@@ -7,7 +7,7 @@ monkey.patch_all()
 import socket, select, os, sys, pdb
 import logging, logging.handlers, logging.config
 import time
-import json
+import json,commands
 import threading
 from pprint import PrettyPrinter
 
@@ -27,17 +27,62 @@ initialRoutes = [
     [ "0:0:7", "1:9999:9999", "2:2:2", "3:0:0"]                  # router 3 neighbors
 ]
 
+"""
 routerSetup=[
     ("10.0.1.24" , 5150),  #iMac
     ("10.0.1.32" , 5151),  #mbpR
     ("10.0.1.23" , 5152),  #linuxMint
     ("10.0.1.24" , 5153)   #iMac2
 ]
+"""
+
+routerSetup=[
+    ("localhost" , 5150),  #iMac
+    ("localhost" , 5151),  #mbpR
+    ("localhost" , 5152),  #linuxMint
+    ("localhost" , 5153)   #iMac2
+]
  
 
 
 
+def tinit() :
+    global  rtr1,rtr2, rtr3, rtr4, _nm
+    _bGra="[40m"
+    _bRed="[41m"
+    _bGre="[42m"
+    _bYel="[43m"
+    _bBlu="[44m"
+    _bPur="[45m"
+    _bCya="[46m"
+    _bWhi="[47m"
+    _fBlk="[0;30m"
+    _fRed="[0;31m"
+    _fGre="[0;32m"
+    _fYel="[0;33m"
+    _fBlu="[0;34m"
+    _fPur="[0;35m"
+    _fCya="[0;36m"
+    _fWhi="[0;37m"
+    _nm="[m"
+    os.environ['TERM']='ansi'
+    _bd=commands.getoutput("tput smso")
+    _cls=commands.getoutput("tput clear")
+    _invis=commands.getoutput("tput invis")
+    _ul=commands.getoutput("tput ul")
+    _em=commands.getoutput("tput bold")
+    rtr1="%s%s" % (_bGra, _fRed)
+    rtr2="%s%s" % (_bGra, _fGre)
+    rtr3="%s%s" % (_bGra, _fBlu)
+    rtr4="%s%s" % (_bGra, _fYel)
 
+#-----------------------------------------------------
+def  thrdLog( rtrNum, msg) :
+    prefix=(rtr1, rtr2, rtr3, rtr4)
+    pref=rtrNum % len(prefix)
+    logger.info ("%sROUTER %d%s %s" % (prefix[pref], rtrNum , _nm,  msg) )
+
+#-----------------------------------------------------
 """
 The RouteServer class listens to other router connect requests 
 It spawns a RouteUpdater thread for each incoming connection 
@@ -61,24 +106,24 @@ class RouteServer(threading.Thread):
         self.inClients={};                 # keeps track of incoming clients
         self.outConnects={};               # keeps track of outgoing connections
         self.tableVersion=0
-        self.updateDVRtable(newValues=None)
+        self.updateDVRtable(remRouter=self.routerNum, newValues=None)
 
     #----------------------------------------------
-    def updateDVRtable(self, newValues={} ) :
+    def updateDVRtable(self, remRouter=0, newValues={} ) :
         if newValues==None:
             #update  from  initialRoutes  (based on self.routerNum )
-            logger.info ("Initializing Router-%d DVRT from static values .." % (self.routerNum) )
+            thrdLog(self.routerNum,"Initializing Router-%d DVRT from static values .." % (self.routerNum) )
             myInitialCosts=initialRoutes[self.routerNum]
             for ric  in myInitialCosts :
                 (toRouter, interface, cost) = ric.split(':')
                 self.dvrTable[int(toRouter)]=(self.routerNum, int(interface), int(cost) )
             self.tableVersion+=1
         else :
-            logger.info ("Updating DVRT from remote router routes ..")
+            thrdLog(remRouter, "Updating DVRT from remote router routes ..")
             # update from the json we got from remote router 
             # bump up the version only if at least one row changed
 
-        logger.info ("Router %d: Table Version %d " % (self.routerNum,  self.tableVersion ) )
+        thrdLog(self.routerNum, "Router %d: Table Version %d " % (self.routerNum,  self.tableVersion ) )
         pp.pprint(self.dvrTable)
 
     #-----------------------------------------------
@@ -90,14 +135,14 @@ class RouteServer(threading.Thread):
         self.serverSock.bind(("",self.srvrPort));
         self.serverSock.listen(5)
         self.msgInCnt=0
-        logger.info("Listen on port: %d" %(self.srvrPort))
+        thrdLog(self.routerNum, "Listen on port: %d" %(self.srvrPort))
 
     #------------------------------------------------
     def acceptClientConnection(self) :
         try :
             incSock, address = self.serverSock.accept()
             clientAddr = "%s:%s" % (address)
-            logger.info("Conection from : %s" % (clientAddr))
+            thrdLog(self.routerNum, "Conection from : %s" % (clientAddr))
             self.inCntr+=1
             newClient = RouteUpdater( self.inCntr, "Thread-%d" % self.inCntr, self,  incSock )
             self.inClients[clientAddr]=newClient
@@ -108,7 +153,7 @@ class RouteServer(threading.Thread):
 
     #-----------------------------------------------
     def run(self):
-        logger.info("Starting " + self.name)
+        thrdLog(self.routerNum, "Starting " + self.name)
         self.setupListener()
         while True :
             self.acceptClientConnection()
@@ -128,11 +173,12 @@ class RouteUpdater(threading.Thread) :
 
     #-----------------------------------------------
     def processRequest(self, remoteTable) :
-        logger.info("here is the rmote table")
-        pp.pprint(remoteTable)
         try :
             rcvdTable = json.loads(remoteTable)
-            self.rtServer.updateDVRtable(rcvdTable)
+            remRouter=int(rcvdTable['0'][0])
+            thrdLog(remRouter, "Processing update from %d" % (remRouter) )
+            pp.pprint(rcvdTable)
+            self.rtServer.updateDVRtable(remRouter, rcvdTable)
             self.mySock.send("Hello: %s" % "ok")      # echo back .. (for testing only)
         except Exception,e :
             logger.error ('Lost connection from ...')
@@ -171,12 +217,12 @@ class RoutePublisher (threading.Thread):
     def doConnectOut(self) :
         sockout = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         #sockout.setblocking(0)
-        logger.info("Connecting out to %s:%d" %(self.toHost,self.toPort))
+        thrdLog(self.routerNum, "Connecting out to %s:%d" %(self.toHost,self.toPort))
         try :
             sockout.connect((self.toHost,self.toPort))
             self.outSock=sockout
         except Exception,e :
-            logger.info("%s: Cannot connect to %s:%d" %(e,self.toHost,self.toPort))
+            thrdLog(self.routerNum, "%s: Cannot connect to %s:%d" %(e,self.toHost,self.toPort))
             self.outSock=None
     #----------------------------------------------
     def run(self) :
@@ -200,7 +246,7 @@ Depending on which router instance
 establish one connection (each edge) to another router
 """
 def openOutgoingConnections(routeServer, myRouterNum) :
-    logger.info ("Opening outgoing connections for Router %d" % (myRouterNum) )
+    thrdLog( myRouterNum, "Opening outgoing connections for Router %d" % (myRouterNum) )
     myNeighbors=initialRoutes[myRouterNum]
     for neighborInfo in myNeighbors :
         (toRouter,interface, cost) = neighborInfo.split(':')
@@ -219,6 +265,7 @@ arg1 => what is my router number
 """
 if __name__  == "__main__"  :
     logging.config.fileConfig("log4py.conf")
+    tinit()
     rtrNum=0
     if len(sys.argv) >  1:
         rtrNum=int(sys.argv[1])
