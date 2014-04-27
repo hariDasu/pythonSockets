@@ -70,19 +70,25 @@ if __name__ == "__main__":
     host3 = '128.235.211.21'
 
     printRouteTable();
-    serverSock = socket(AF_INET, SOCK_STREAM)
-    serverSock.connect((host1, 16001))
-    serverSock.connect((host2, 16002))
-    serverSock.connect((host3, 16003))
+    ogSock1 = socket(AF_INET, SOCK_STREAM)
+    ogSock2 = socket(AF_INET, SOCK_STREAM)
+    ogSock3 = socket(AF_INET, SOCK_STREAM)
+    ogSock1.connect((host1, 16001))
+    ogSock2.connect((host2, 16002))
+    ogSock3.connect((host3, 16003))
     while True:
         #msg2Server=input("Enter lower case text : " )
         pdb.set_trace()
-        #Sending route table to server
+        #Sending route table to servers
         toSend = json.dumps(costMatrix);
 
-        serverSock.send(toSend.encode());
+        ogSock1.send(toSend.encode());
+        ogSock2.send(toSend.encode());
+        ogSock3.send(toSend.encode());
         #Getting route table from server
-        fromServer = json.loads(readServerData(serverSock))
+        fromServer1 = json.loads(readServerData(ogSock1))
+        fromServer2 = json.loads(readServerData(ogSock2))
+        fromServer3 = json.loads(readServerData(ogSock3))
         #nonBytes = fromServer.decode()
         pp.pprint(fromServer);
         bellmanFording(costMatrix, fromServer);

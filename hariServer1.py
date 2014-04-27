@@ -31,7 +31,7 @@ initialCostMatrix =   {
 
 rvcdRouteTable = [];
 
-def  acceptOneConnection() :
+def acceptOneConnection() :
     lsock = socket.socket()         # Create a socket object
     host1 = '10.0.1.32'     # Get  machine name
     port = 16001
@@ -46,7 +46,7 @@ def  acceptOneConnection() :
     return csock
 
 #----------------------------------------
-def  readClientData(csock) :
+def readClientData(csock) :
     sentence = csock.recv(1024)
     return sentence.upper().decode()
 
@@ -56,7 +56,7 @@ def sendTable(clientSock) :
         toClientMsg = json.dumps(initialCostMatrix);
         clientSock.send(toClientMsg.encode());
 #------------------------------------------
-def bellmanFording(someTable,otherTable) :
+def bellmanFording(someTable,otherTable):
     myNumber = someTable["0"][0];
 
     otherNumber = otherTable["0"][0];
