@@ -37,7 +37,7 @@ def  acceptOneConnection() :
     lsock = socket.socket()         # Create a socket object
     host3= '128.235.211.21'     # Get  machine name
     port = 16003
-    lsock.bind((host2, port))        # Bind to the port
+    lsock.bind((host3, port))        # Bind to the port
     lsock.listen(5)                 # Now wait for client connection.
     # lsock - blocking for conn
     csock, addr = lsock.accept()        # Establish connection with client.
