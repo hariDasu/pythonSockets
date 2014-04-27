@@ -27,10 +27,10 @@ initialRoutes = [
 ]
 
 routerSetup=[
-    ("localhost" , 5150),
-    ("localhost" , 5151),
-    ("localhost" , 5152),
-    ("localhost" , 5153)
+    ("10.0.1.24" , 5150),  #iMac
+    ("10.0.1.32" , 5151),  #mbpR
+    ("10.0.1.23" , 5152),  #linuxMint
+    ("10.0.1.24" , 5153)   #iMac2
 ]
  
 
