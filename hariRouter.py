@@ -7,6 +7,7 @@ monkey.patch_all()
 import socket, select, os, sys, pdb
 import logging, logging.handlers, logging.config
 import time
+import json
 import threading
 from pprint import PrettyPrinter
 
@@ -127,10 +128,11 @@ class RouteUpdater(threading.Thread) :
 
     #-----------------------------------------------
     def processRequest(self, remoteTable) :
-        logger.info ("Req : %s" % remoteTable )
+        pp.pprint(remoteTable)
         try :
-            self.rtServer.updateDVRtable(remoteTable)
-            self.mySock.send("Hello: %s" % remoteTable)      # echo back .. (for testing only)
+            rcvdTable = json.loads(remoteTable)
+            self.rtServer.updateDVRtable(rcvdTable)
+            #self.mySock.send("Hello: %s" % rcvdTable)      # echo back .. (for testing only)
         except Exception,e :
             logger.error ('Lost connection from ...')
             self.mySock=None
@@ -184,7 +186,8 @@ class RoutePublisher (threading.Thread):
                 # publish our DVR table to the server we are connected to
                 # only  if our table version changed
                 if self.rtServer.tableVersion != self.lastPubVersion :
-                    self.outSock.send("Publish DVR")
+                    toMsg = json.dumps(self.rtServer.dvrTable);
+                    self.outSock.send(toMsg)
                     resp=self.outSock.recv(1000)
                     self.lastPubVersion=self.rtServer.tableVersion
                     logger.info ("%s: Resp ->  %s" % (self.name, resp) )
