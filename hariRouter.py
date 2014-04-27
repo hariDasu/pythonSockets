@@ -20,10 +20,10 @@ Each row in the array rerpresents one routers neighbors
 Each column is encoded as ToRouter:Interface:Cost
 """
 initialRoutes = [
-    [ "1:0:1", "2:1:3",  "3:2:7" ] ,     # router 0 neighbors  ( ToRouter:Interface:Cost)
-    [ "0:1:1", "2:0:1" ],                # router 1 neighbors
-    [ "0:2:3", "1:0:1" , "3:1:2"],       # router 2 neighbors
-    [ "0:0:7", "2:2:2"]                  # router 3 neighbors
+    [ "0:0:0", "1:0:1", "2:1:3",  "3:2:7" ] ,     # router 0 neighbors  ( ToRouter:Interface:Cost)
+    [ "0:1:1", "1:0:0", "2:0:1","3:9999:9999" ],                # router 1 neighbors
+    [ "0:2:3", "1:0:1" , "2:0:0", "3:1:2"],       # router 2 neighbors
+    [ "0:0:7", "1:9999:9999", "2:2:2", "3:0:0"]                  # router 3 neighbors
 ]
 
 routerSetup=[
@@ -200,6 +200,9 @@ def openOutgoingConnections(routeServer, myRouterNum) :
     myNeighbors=initialRoutes[myRouterNum]
     for neighborInfo in myNeighbors :
         (toRouter,interface, cost) = neighborInfo.split(':')
+        #pdb.set_trace();
+        if (cost=='0' or cost=='9999') :
+            continue
         (toHost, toPort)=routerSetup[int(toRouter)]
         client1 = RoutePublisher(toRouter, "Out-%d" % (int(toRouter)), routeServer=routeServer, toHost=toHost, toPort=toPort)
         client1.start()
