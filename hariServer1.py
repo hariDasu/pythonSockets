@@ -5,11 +5,11 @@
 
 import socket               # Import socket module
 import json
-#import pdb, ipdb, pudb
-#import PrettyPrinter
- 
+import pdb, ipdb, pudb
+from pprint import PrettyPrinter
 
 
+pp=PrettyPrinter(indent=4);
 #----------------------------------------
 clientSockArr={}
 
@@ -22,35 +22,33 @@ clientSockArr={}
 '''
 initialCostMatrix =   {
 
-                        "0":[1,2,1],
+                        "0":[1,3,1],
                         "1":[1,0,0],
-                        "2":[1,0,1],
+                        "2":[1,1,1],
                         "3":[1,"N",9999]
+                     };
 
-                };
 
-
-rvcdRouteTable = [
-                    ];
+rvcdRouteTable = [];
 
 def  acceptOneConnection() :
     lsock = socket.socket()         # Create a socket object
-    host2= '128.235.211.21'     # Get  machine name
-    port = 16002
-    lsock.bind((host, port))        # Bind to the port
+    host1 = '10.0.1.32'     # Get  machine name
+    port = 16001
+    lsock.bind((host1, port))        # Bind to the port
     lsock.listen(5)                 # Now wait for client connection.
     # lsock - blocking for conn
     csock, addr = lsock.accept()        # Establish connection with client.
     #  csock - turned to non-blocking
     #csock.setblocking(0)
     clientSockArr[addr]=csock
-    print( 'Remembering  client socket from', addr)
-    return  csock
+    print('Remembering  client socket from', addr)
+    return csock
 
 #----------------------------------------
 def  readClientData(csock) :
-    sentence=csock.recv(1024)
-    return  sentence.upper().decode()
+    sentence = csock.recv(1024)
+    return sentence.upper().decode()
 
 #----------------------------------------
 
@@ -73,24 +71,24 @@ def bellmanFording(someTable,otherTable) :
         replCost = otherTable[uI][2]+costTo;
         replIntf = otherTable[uI][1];
 
-        if someTable[toRouter][2]>otherTable[uI][2]+costTo :
-            someTable[toRouter][2]=replCost;
-            someTable[toRouter][1]=intfTo;
+        if someTable[toRouter][2] > otherTable[uI][2]+costTo :
+            someTable[toRouter][2] = replCost;
+            someTable[toRouter][1] = intfTo;
 #------------------------------------------
 
 if __name__ == "__main__" :
-    csock=acceptOneConnection()
-    while True  :
+    csock = acceptOneConnection()
+    while True:
 
         clientData=readClientData(csock)
         #print(clientData)
-        rcvdRouteTable=json.loads(clientData)
+        rcvdRouteTable = json.loads(clientData)
         print(rcvdRouteTable);
-        print("hit enter to send to client...");
-        input();
+        #print("hit enter to send to client...");
+        #input();
         sendTable(csock);
-        bellmanFording(initialCostMatrix,rcvdRouteTable)
-        print(initialCostMatrix);
+        bellmanFording(initialCostMatrix, rcvdRouteTable)
+        pp.pprint(initialCostMatrix);
 
         #csock.send(clientData)
         #if upperSent=="DONE" :

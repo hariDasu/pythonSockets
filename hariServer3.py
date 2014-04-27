@@ -6,21 +6,28 @@
 import socket               # Import socket module
 import json
 #import pdb, ipdb, pudb
-#from pprint import PrettyPrinter
+from pprint import PrettyPrinter
 
 
-#pp=PrettyPrinter(indent=4);
+pp=PrettyPrinter(indent=4);
 #----------------------------------------
 clientSockArr={}
 
+''' {to:[from, interface, cost],
+     to:[from, interface, cost]
+    }
+     0 interface refers to local
 
+     "N" (NaN) is a non-existant interface
+'''
 initialCostMatrix =   {
 
-                        "0":[1,2,1],
-                        "1":[1,0,0],
-                        "2":[1,0,1],
-                        "3":[1,"N",9999]
-                     };
+                        "0":[3,1,7],
+                        "1":[3,"N",9999],
+                        "2":[3,3,2],
+                        "3":[3,0,0]
+
+                };
 
 
 rvcdRouteTable = [
@@ -28,9 +35,9 @@ rvcdRouteTable = [
 
 def  acceptOneConnection() :
     lsock = socket.socket()         # Create a socket object
-    host1 = '128.235.208.35'     # Get  machine name
-    port = 16001
-    lsock.bind((host, port))        # Bind to the port
+    host3= '128.235.211.21'     # Get  machine name
+    port = 16003
+    lsock.bind((host2, port))        # Bind to the port
     lsock.listen(5)                 # Now wait for client connection.
     # lsock - blocking for conn
     csock, addr = lsock.accept()        # Establish connection with client.
@@ -78,12 +85,12 @@ if __name__ == "__main__" :
         clientData=readClientData(csock)
         #print(clientData)
         rcvdRouteTable=json.loads(clientData)
-        print(rcvdRouteTable);
-        print("hit enter to send to client...");
-        input();
+        pp.pprint(rcvdRouteTable);
+        #print("hit enter to send to client...");
+        #input();
         sendTable(csock);
         bellmanFording(initialCostMatrix,rcvdRouteTable)
-        print(initialCostMatrix);
+        pp.pprint(initialCostMatrix);
 
         #csock.send(clientData)
         #if upperSent=="DONE" :

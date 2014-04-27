@@ -6,10 +6,10 @@
 import socket               # Import socket module
 import json
 #import pdb, ipdb, pudb
-from pprint import PrettyPrinter
+#import PrettyPrinter
+ 
 
 
-pp=PrettyPrinter(indent=4);
 #----------------------------------------
 clientSockArr={}
 
@@ -22,9 +22,9 @@ clientSockArr={}
 '''
 initialCostMatrix =   {
 
-                        "0":[1,2,1],
-                        "1":[1,0,0],
-                        "2":[1,0,1],
+                        "0":[2,2,3],
+                        "1":[2,0,1],
+                        "2":[2,0,0],
                         "3":[1,"N",9999]
 
                 };
@@ -35,17 +35,17 @@ rvcdRouteTable = [
 
 def  acceptOneConnection() :
     lsock = socket.socket()         # Create a socket object
-    host3= '128.235.208.127'     # Get  machine name
-    port = 16003
-    lsock.bind((host, port))        # Bind to the port
+    host2= '10.0.1.23'     # Get  machine name
+    port = 16002
+    lsock.bind((host2, port))        # Bind to the port
     lsock.listen(5)                 # Now wait for client connection.
     # lsock - blocking for conn
     csock, addr = lsock.accept()        # Establish connection with client.
     #  csock - turned to non-blocking
     #csock.setblocking(0)
     clientSockArr[addr]=csock
-    print( 'Remembering  client socket from', addr)
-    return  csock
+    print('Remembering  client socket from', addr)
+    return csock
 
 #----------------------------------------
 def  readClientData(csock) :
@@ -85,12 +85,12 @@ if __name__ == "__main__" :
         clientData=readClientData(csock)
         #print(clientData)
         rcvdRouteTable=json.loads(clientData)
-        pp.pprint(rcvdRouteTable);
-        print("hit enter to send to client...");
-        input();
+        print(rcvdRouteTable);
+        #print("hit enter to send to client...");
+        #input();
         sendTable(csock);
         bellmanFording(initialCostMatrix,rcvdRouteTable)
-        pp.pprint(initialCostMatrix);
+        print(initialCostMatrix);
 
         #csock.send(clientData)
         #if upperSent=="DONE" :
