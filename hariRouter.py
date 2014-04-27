@@ -132,7 +132,7 @@ class RouteUpdater(threading.Thread) :
         try :
             rcvdTable = json.loads(remoteTable)
             self.rtServer.updateDVRtable(rcvdTable)
-            #self.mySock.send("Hello: %s" % rcvdTable)      # echo back .. (for testing only)
+            self.mySock.send("Hello: %s" % "ok")      # echo back .. (for testing only)
         except Exception,e :
             logger.error ('Lost connection from ...')
             self.mySock=None
